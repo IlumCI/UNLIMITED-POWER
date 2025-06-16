@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Alarmingly Good Large Language Model Chat</title>
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    body {
+      background: #111;
+      color: #eee;
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    select, input, button {
+      background: #222;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
+    #chat {
+      background: #000;
+      border: 1px solid #333;
+      padding: 10px;
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .user { color: #66f; }
+    .ai { color: #6f6; }
+  </style>
+</head>
+<body>
+
+  <h2>Puter AI Chat with Model Selection</h2>
+
+  <label for="modelSelect">Choose model:</label>
+  <select id="modelSelect">
+    <option selected>gpt-4o-mini</option>
+    <option>gpt-4o</option>
+    <option>o1</option>
+    <option>o1-mini</option>
+    <option>o1-pro</option>
+    <option>o3</option>
+    <option>o3-mini</option>
+    <option>o4-mini</option>
+    <option>gpt-4.1</option>
+    <option>gpt-4.1-mini</option>
+    <option>gpt-4.1-nano</option>
+    <option>gpt-4.5-preview</option>
+    <option>claude-sonnet-4</option>
+    <option>claude-opus-4</option>
+    <option>claude-3-7-sonnet</option>
+    <option>claude-3-5-sonnet</option>
+    <option>deepseek-chat</option>
+    <option>deepseek-reasoner</option>
+    <option>gemini-2.0-flash</option>
+    <option>gemini-1.5-flash</option>
+    <option>meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo</option>
+    <option>meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo</option>
+    <option>meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo</option>
+    <option>mistral-large-latest</option>
+    <option>pixtral-large-latest</option>
+    <option>codestral-latest</option>
+    <option>google/gemma-2-27b-it</option>
+    <option>grok-beta</option>
+  </select>
+
+  <input id="userInput" placeholder="Ask something..." />
+  <button onclick="sendMessage()">Send</button>
+
+  <div id="chat"></div>
+
+  <script>
+    const modelSelect = document.getElementById("modelSelect");
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("userInput");
+
+    const messages = [];
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      const model = modelSelect.value || "gpt-4o-mini";
+
+      messages.push({ role: "user", content: text });
+      appendMsg("user", text);
+      input.value = "";
+
+      let reply = "";
+      appendMsg("ai", "...");
+
+      try {
+        const stream = await puter.ai.chat(messages, false, {
+          model: model,
+          stream: true
+        });
+
+        for await (const chunk of stream) {
+          reply += chunk.content || "";
+          updateLastAI(reply);
+        }
+
+        messages.push({ role: "assistant", content: reply });
+      } catch (err) {
+        updateLastAI("⚠️ Error: " + err.message);
+      }
+    }
+
+    function appendMsg(role, text) {
+      const div = document.createElement("div");
+      div.className = role;
+      div.textContent = (role === "user" ? "👤 You: " : "🤖 AI: ") + text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function updateLastAI(text) {
+      const all = chat.querySelectorAll(".ai");
+      if (all.length === 0) return;
+      all[all.length - 1].textContent = "🤖 AI: " + text;
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+
+</body>
+</html>
