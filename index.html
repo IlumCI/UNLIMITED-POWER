@@ -5,7 +5,7 @@
   <title>Chat with Ilum</title>
   <script src="https://js.puter.com/v2/"></script>
   <style>
-    /* Reusing the sleek UI style */
+    
     body {
       margin: 0;
       padding: 0;
@@ -76,7 +76,6 @@
   <div id="chat"></div>
   <div id="inputArea">
     <select id="modelSelect">
-      <!-- Multi-model options -->
       <option selected>gpt-4o-mini</option>
     <option>gpt-4o</option>
     <option>o1</option>
@@ -144,15 +143,13 @@
       const container = renderMessage('assistant', '');
 
       try {
-        // Official usage: pass messages array with options object
         const stream = await puter.ai.chat(messages, { 
           model: modelSelect.value, 
           stream: true 
-        }); // :contentReference[oaicite:2]{index=2}
+        }); 
 
         let full = '';
         for await (const part of stream) {
-          // New API returns part.text or chunk.message.content
           const chunk = part.text ?? part.message?.content ?? '';
           full += chunk;
           container.innerHTML = formatMarkdown(full);
